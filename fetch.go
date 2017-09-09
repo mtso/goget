@@ -46,15 +46,3 @@ func main() {
 		fmt.Println(err)
 	}
 }
-
-func reverse(pieces []string) []string {
-	length := len(pieces)
-	reversed := make([]string, length)
-	for i, j := 0, length-1; i < j; i, j = i+1, j-1 {
-		reversed[i], reversed[j] = pieces[j], pieces[i]
-	}
-	if length%2 == 1 {
-		reversed[length/2] = pieces[length/2]
-	}
-	return reversed
-}
