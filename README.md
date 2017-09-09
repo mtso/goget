@@ -1,7 +1,7 @@
 # goget
 
 [summary]::
-`go get` for all repos.
+`go get` **all** the repos.
 
 ## Install
 
