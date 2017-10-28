@@ -28,6 +28,7 @@ func main() {
 	}
 
 	name := os.Args[1]
+	rest := os.Args[2:]
 
 	remoteurl := "https://" + name
 
@@ -37,7 +38,12 @@ func main() {
 
 	localdir := path.Join(withroot...)
 
-	cmd := exec.Command("git", "clone", remoteurl, localdir)
+	// Pass cli args to `git clone`
+	args := []string{"git", "clone"}
+	args = append(args, rest...)
+	args = append(args, "--", remoteurl, localdir)
+	
+	cmd := exec.Command(args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
