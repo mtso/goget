@@ -7,11 +7,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -37,12 +41,35 @@ func main() {
 
 	localdir := path.Join(withroot...)
 
-	cmd := exec.Command("git", "clone", remoteurl, localdir)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		30*time.Minute,
+	)
+	defer cancel()
 
-	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
+	cmd := exec.CommandContext(ctx, "git", "clone", remoteurl, localdir)
+
+	if err := cmd.Start(); err != nil {
+		log.Fatalf("cmd.Start: %v", err)
+	}
+
+	// Exit status capturing reference:
+	// https://stackoverflow.com/a/10385867/2684355
+	if err := cmd.Wait(); err != nil {
+		if exiterr, ok := err.(*exec.ExitError); ok {
+
+			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+				switch status.ExitStatus() {
+				case 128:
+					fmt.Println("Error: destination path already exists")
+				default:
+					log.Fatalf("Failed for unaccounted reason")
+				}
+			}
+		} else {
+			log.Fatalf("Failed for unaccounted reason")
+		}
+	} else {
+		fmt.Print(localdir)
 	}
 }
