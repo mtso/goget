@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"flag"
 	"log"
 	"os"
 	"os/exec"
@@ -18,8 +19,12 @@ import (
 	"time"
 )
 
+var dirFlag = flag.Bool("d", false, "Print local directory of repo")
+
 func main() {
-	if len(os.Args) < 2 {
+	flag.Parse()
+
+	if len(flag.Args()) < 1 {
 		fmt.Println("No package specified")
 		return
 	}
@@ -31,7 +36,7 @@ func main() {
 		return
 	}
 
-	name := os.Args[1]
+	name := flag.Args()[0]
 
 	remoteurl := "https://" + name
 
@@ -40,6 +45,11 @@ func main() {
 	withroot := append([]string{gitpath, "src"}, pieces...)
 
 	localdir := path.Join(withroot...)
+
+	if *dirFlag {
+		fmt.Print(localdir)
+		return
+	}
 
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
