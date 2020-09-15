@@ -19,10 +19,18 @@ import (
 	"time"
 )
 
+const Version = "0.2.0"
+
 var dirFlag = flag.Bool("d", false, "Print local directory of repo")
+var versionFlag = flag.Bool("v", false, "Print version of goget")
 
 func main() {
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("goget v%s\n", Version)
+		return
+	}
 
 	if len(flag.Args()) < 1 {
 		fmt.Println("No package specified")
